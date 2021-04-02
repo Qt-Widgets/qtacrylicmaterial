@@ -24,11 +24,11 @@
 
 #pragma once
 
-#include "framelesshelper_global.h"
+#include "qtacrylichelper_global.h"
 #include <QtQuick/qquickpainteditem.h>
 #include "qtacryliceffecthelper.h"
 
-class FRAMELESSHELPER_EXPORT QtAcrylicItem : public QQuickPaintedItem
+class QTACRYLICHELPER_API QtAcrylicItem : public QQuickPaintedItem
 {
     Q_OBJECT
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
@@ -38,10 +38,6 @@ class FRAMELESSHELPER_EXPORT QtAcrylicItem : public QQuickPaintedItem
     Q_PROPERTY(QColor tintColor READ tintColor WRITE setTintColor NOTIFY tintColorChanged)
     Q_PROPERTY(qreal tintOpacity READ tintOpacity WRITE setTintOpacity NOTIFY tintOpacityChanged)
     Q_PROPERTY(qreal noiseOpacity READ noiseOpacity WRITE setNoiseOpacity NOTIFY noiseOpacityChanged)
-    Q_PROPERTY(bool frameVisible READ frameVisible WRITE setFrameVisible NOTIFY frameVisibleChanged)
-    Q_PROPERTY(QColor frameColor READ frameColor WRITE setFrameColor NOTIFY frameColorChanged)
-    Q_PROPERTY(qreal frameThickness READ frameThickness WRITE setFrameThickness NOTIFY frameThicknessChanged)
-    Q_PROPERTY(bool acrylicEnabled READ acrylicEnabled WRITE setAcrylicEnabled NOTIFY acrylicEnabledChanged)
 
 public:
     explicit QtAcrylicItem(QQuickItem *parent = nullptr);
@@ -58,30 +54,11 @@ public:
     qreal noiseOpacity() const;
     void setNoiseOpacity(const qreal value);
 
-    bool frameVisible() const;
-    void setFrameVisible(const bool value);
-
-    QColor frameColor() const;
-    void setFrameColor(const QColor &value);
-
-    qreal frameThickness() const;
-    void setFrameThickness(const qreal value);
-
-    bool acrylicEnabled() const;
-    void setAcrylicEnabled(const bool value);
-
 Q_SIGNALS:
     void tintColorChanged();
     void tintOpacityChanged();
     void noiseOpacityChanged();
-    void frameVisibleChanged();
-    void frameColorChanged();
-    void frameThicknessChanged();
-    void acrylicEnabledChanged();
 
 private:
     QtAcrylicEffectHelper m_acrylicHelper;
-    bool m_frameVisible = true;
-    QMetaObject::Connection m_repaintConnection = {};
-    bool m_acrylicEnabled = false;
 };

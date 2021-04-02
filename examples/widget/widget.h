@@ -24,39 +24,31 @@
 
 #pragma once
 
-#include "qtacrylichelper_global.h"
-#include <QtCore/qcoreevent.h>
-#include <QtCore/qabstractnativeeventfilter.h>
+#include <QtWidgets/qwidget.h>
 
-class QTACRYLICHELPER_API QtAcrylicWinUpdateEvent : public QEvent
+QT_BEGIN_NAMESPACE
+QT_FORWARD_DECLARE_CLASS(QLabel)
+QT_END_NAMESPACE
+
+class QtAcrylicWidget;
+
+class Widget : public QWidget
 {
+    Q_OBJECT
+    Q_DISABLE_COPY_MOVE(Widget)
+
 public:
-    static const int QtAcrylicEffectChangeEventId;
+    explicit Widget(QWidget *parent = nullptr);
+    ~Widget() override;
 
-    explicit QtAcrylicWinUpdateEvent(const bool clearWallpaper = false);
-    ~QtAcrylicWinUpdateEvent() override;
-
-    inline bool shouldClearPreviousWallpaper() const
-    {
-        return m_shouldClearPreviousWallpaper;
-    }
+protected:
+    void timerEvent(QTimerEvent *event) override;
+    void moveEvent(QMoveEvent *event) override;
 
 private:
-    bool m_shouldClearPreviousWallpaper = false;
-};
+    void setupUi();
 
-class QTACRYLICHELPER_API QtAcrylicWinEventFilter : public QAbstractNativeEventFilter
-{
-public:
-    explicit QtAcrylicWinEventFilter();
-    ~QtAcrylicWinEventFilter() override;
-
-    static void setup();
-    static void unsetup();
-
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    bool nativeEventFilter(const QByteArray &eventType, void *message, qintptr *result) override;
-#else
-    bool nativeEventFilter(const QByteArray &eventType, void *message, long *result) override;
-#endif
+private:
+    QLabel *m_label = nullptr;
+    QtAcrylicWidget *m_acrylicWidget = nullptr;
 };

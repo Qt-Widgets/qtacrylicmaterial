@@ -23,13 +23,12 @@
  */
 
 #include "qtacrylicwidget.h"
-#include "utilities.h"
 #include <QtCore/qdebug.h>
-#include <QtGui/qevent.h>
 #include <QtGui/qpainter.h>
 
 QtAcrylicWidget::QtAcrylicWidget(QWidget *parent) : QWidget(parent)
 {
+    m_acrylicHelper.updateAcrylicBrush(tintColor());
 }
 
 QtAcrylicWidget::~QtAcrylicWidget() = default;
@@ -91,93 +90,16 @@ void QtAcrylicWidget::setNoiseOpacity(const qreal value)
     }
 }
 
-bool QtAcrylicWidget::frameVisible() const
-{
-    return m_frameVisible;
-}
-
-void QtAcrylicWidget::setFrameVisible(const bool value)
-{
-    if (m_frameVisible != value) {
-        m_frameVisible = value;
-        update();
-        Q_EMIT frameVisibleChanged();
-    }
-}
-
-QColor QtAcrylicWidget::frameColor() const
-{
-    return m_acrylicHelper.getFrameColor();
-}
-
-void QtAcrylicWidget::setFrameColor(const QColor &value)
-{
-    if (m_acrylicHelper.getFrameColor() != value) {
-        m_acrylicHelper.setFrameColor(value);
-        update();
-        Q_EMIT frameColorChanged();
-    }
-}
-
-qreal QtAcrylicWidget::frameThickness() const
-{
-    return m_acrylicHelper.getFrameThickness();
-}
-
-void QtAcrylicWidget::setFrameThickness(const qreal value)
-{
-    if (m_acrylicHelper.getFrameThickness() != value) {
-        m_acrylicHelper.setFrameThickness(value);
-        update();
-        Q_EMIT frameThicknessChanged();
-    }
-}
-
-bool QtAcrylicWidget::acrylicEnabled() const
-{
-    return m_acrylicEnabled;
-}
-
-void QtAcrylicWidget::setAcrylicEnabled(const bool value)
-{
-    if (m_acrylicEnabled != value) {
-        m_acrylicEnabled = value;
-        if (m_inited) {
-            Utilities::setBlurEffectEnabled(windowHandle(), m_acrylicEnabled);
-        }
-        setAutoFillBackground(!m_acrylicEnabled);
-        setAttribute(Qt::WA_NoSystemBackground, m_acrylicEnabled);
-        setAttribute(Qt::WA_OpaquePaintEvent, m_acrylicEnabled);
-        setBackgroundRole(m_acrylicEnabled ? QPalette::Base : QPalette::Window);
-        update();
-        Q_EMIT acrylicEnabledChanged();
-        if (m_acrylicEnabled) {
-            m_acrylicHelper.showWarning();
-        }
-    }
-}
-
-void QtAcrylicWidget::showEvent(QShowEvent *event)
-{
-    QWidget::showEvent(event);
-    if (!m_inited) {
-        m_acrylicHelper.install(windowHandle());
-        m_acrylicHelper.updateAcrylicBrush(tintColor());
-        connect(&m_acrylicHelper, &QtAcrylicEffectHelper::needsRepaint, this, qOverload<>(&QtAcrylicWidget::update));
-        Utilities::setBlurEffectEnabled(windowHandle(), m_acrylicEnabled);
-        m_inited = true;
-    }
-}
-
 void QtAcrylicWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-    const QRect rect = {0, 0, width(), height()};
-    if (acrylicEnabled()) {
-        m_acrylicHelper.paintWindowBackground(&painter, rect);
-    }
-    if (frameVisible()) {
-        m_acrylicHelper.paintWindowFrame(&painter, rect);
-    }
+    const QRect rect = {mapToGlobal(QPoint{0, 0}), size()};
+    m_acrylicHelper.paintBackground(&painter, rect);
     QWidget::paintEvent(event);
+}
+
+void QtAcrylicWidget::moveEvent(QMoveEvent *event)
+{
+    QWidget::moveEvent(event);
+    update();
 }

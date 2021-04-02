@@ -24,18 +24,11 @@
 
 #pragma once
 
-#include "framelesshelper_global.h"
+#include "qtacrylichelper_global.h"
 #include <QtGui/qcolor.h>
 #include <QtGui/qwindow.h>
 
 namespace Utilities {
-
-enum class SystemMetric
-{
-    BorderWidth,
-    BorderHeight,
-    TitleBarHeight
-};
 
 enum class DesktopWallpaperAspectStyle
 {
@@ -48,68 +41,37 @@ enum class DesktopWallpaperAspectStyle
 };
 
 // Common
-FRAMELESSHELPER_EXPORT bool shouldUseWallpaperBlur();
-FRAMELESSHELPER_EXPORT bool shouldUseTraditionalBlur();
-FRAMELESSHELPER_EXPORT bool setBlurEffectEnabled(const QWindow *window, const bool enabled, const QColor &gradientColor = {});
+QTACRYLICHELPER_API bool shouldUseWallpaperBlur();
+QTACRYLICHELPER_API bool shouldUseTraditionalBlur();
+QTACRYLICHELPER_API bool setBlurEffectEnabled(const QWindow *window, const bool enabled, const QColor &gradientColor = {});
 
-FRAMELESSHELPER_EXPORT int getSystemMetric(const QWindow *window, const SystemMetric metric, const bool dpiAware, const bool forceSystemValue = false);
+QTACRYLICHELPER_API QWindow *findWindow(const WId winId);
 
-FRAMELESSHELPER_EXPORT bool isLightThemeEnabled();
-FRAMELESSHELPER_EXPORT bool isDarkThemeEnabled();
+QTACRYLICHELPER_API QImage getDesktopWallpaperImage(const int screen = -1);
+QTACRYLICHELPER_API QColor getDesktopBackgroundColor(const int screen = -1);
+QTACRYLICHELPER_API DesktopWallpaperAspectStyle getDesktopWallpaperAspectStyle(const int screen = -1);
 
-FRAMELESSHELPER_EXPORT QWindow *findWindow(const WId winId);
+QTACRYLICHELPER_API QRect alignedRect(const Qt::LayoutDirection direction, const Qt::Alignment alignment, const QSize &size, const QRect &rectangle);
 
-FRAMELESSHELPER_EXPORT QImage getDesktopWallpaperImage(const int screen = -1);
-FRAMELESSHELPER_EXPORT QColor getDesktopBackgroundColor(const int screen = -1);
-FRAMELESSHELPER_EXPORT DesktopWallpaperAspectStyle getDesktopWallpaperAspectStyle(const int screen = -1);
+QTACRYLICHELPER_API void blurImage(QImage &blurImage, const qreal radius, const bool quality, const int transposed = 0);
+QTACRYLICHELPER_API void blurImage(QPainter *painter, QImage &blurImage, const qreal radius, const bool quality, const bool alphaOnly, const int transposed = 0);
 
-FRAMELESSHELPER_EXPORT QRect getScreenAvailableGeometry(const QWindow *window);
-FRAMELESSHELPER_EXPORT QRect getScreenAvailableGeometry(const QPoint &pos);
-
-FRAMELESSHELPER_EXPORT QRect getScreenGeometry(const QWindow *window);
-FRAMELESSHELPER_EXPORT QRect getScreenGeometry(const QPoint &pos);
-
-FRAMELESSHELPER_EXPORT QRect alignedRect(const Qt::LayoutDirection direction, const Qt::Alignment alignment, const QSize &size, const QRect &rectangle);
-
-FRAMELESSHELPER_EXPORT void blurImage(QImage &blurImage, const qreal radius, const bool quality, const int transposed = 0);
-FRAMELESSHELPER_EXPORT void blurImage(QPainter *painter, QImage &blurImage, const qreal radius, const bool quality, const bool alphaOnly, const int transposed = 0);
-
-FRAMELESSHELPER_EXPORT bool disableExtraProcessingForBlur();
-FRAMELESSHELPER_EXPORT bool forceEnableTraditionalBlur();
-FRAMELESSHELPER_EXPORT bool forceDisableWallpaperBlur();
-FRAMELESSHELPER_EXPORT bool shouldUseNativeTitleBar();
-
-FRAMELESSHELPER_EXPORT bool isWindowFixedSize(const QWindow *window);
-
-FRAMELESSHELPER_EXPORT bool isMouseInSpecificObjects(const QPointF &mousePos, const QObjectList &objects, const qreal dpr = 1.0);
+QTACRYLICHELPER_API bool disableExtraProcessingForBlur();
+QTACRYLICHELPER_API bool forceEnableTraditionalBlur();
+QTACRYLICHELPER_API bool forceDisableWallpaperBlur();
 
 #ifdef Q_OS_WINDOWS
 // Windows specific
-FRAMELESSHELPER_EXPORT bool isWin7OrGreater();
-FRAMELESSHELPER_EXPORT bool isWin8OrGreater();
-FRAMELESSHELPER_EXPORT bool isWin8Point1OrGreater();
-FRAMELESSHELPER_EXPORT bool isWin10OrGreater();
-FRAMELESSHELPER_EXPORT bool isWin10OrGreater(const int subVer);
+QTACRYLICHELPER_API bool isWin7OrGreater();
+QTACRYLICHELPER_API bool isWin8OrGreater();
+QTACRYLICHELPER_API bool isWin8Point1OrGreater();
+QTACRYLICHELPER_API bool isWin10OrGreater();
+QTACRYLICHELPER_API bool isWin10OrGreater(const int subVer);
 
-FRAMELESSHELPER_EXPORT bool isDwmBlurAvailable();
-FRAMELESSHELPER_EXPORT bool isOfficialMSWin10AcrylicBlurAvailable();
+QTACRYLICHELPER_API bool isDwmBlurAvailable();
+QTACRYLICHELPER_API bool isOfficialMSWin10AcrylicBlurAvailable();
 
-FRAMELESSHELPER_EXPORT bool isColorizationEnabled();
-FRAMELESSHELPER_EXPORT QColor getColorizationColor();
-
-FRAMELESSHELPER_EXPORT bool isHighContrastModeEnabled();
-FRAMELESSHELPER_EXPORT bool isDarkFrameEnabled(const QWindow *window);
-FRAMELESSHELPER_EXPORT bool isTransparencyEffectEnabled();
-
-FRAMELESSHELPER_EXPORT void triggerFrameChange(const QWindow *window);
-FRAMELESSHELPER_EXPORT void updateFrameMargins(const QWindow *window, const bool reset);
-FRAMELESSHELPER_EXPORT void updateQtFrameMargins(QWindow *window, const bool enable);
-
-FRAMELESSHELPER_EXPORT quint32 getWindowDpi(const QWindow *window);
-FRAMELESSHELPER_EXPORT QMargins getWindowNativeFrameMargins(const QWindow *window);
-FRAMELESSHELPER_EXPORT QColor getNativeWindowFrameColor(const bool isActive = true);
-
-FRAMELESSHELPER_EXPORT void displaySystemMenu(const QWindow *window, const QPoint &pos = {});
+QTACRYLICHELPER_API QColor getColorizationColor();
 #endif
 
 }

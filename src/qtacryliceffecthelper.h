@@ -24,60 +24,41 @@
 
 #pragma once
 
-#include "framelesshelper_global.h"
+#include "qtacrylichelper_global.h"
 #include <QtGui/qbrush.h>
 
-class FRAMELESSHELPER_EXPORT QtAcrylicEffectHelper : public QObject
+class QTACRYLICHELPER_API QtAcrylicEffectHelper
 {
-    Q_OBJECT
     Q_DISABLE_COPY_MOVE(QtAcrylicEffectHelper)
 
 public:
-    explicit QtAcrylicEffectHelper(QObject *parent = nullptr);
-    ~QtAcrylicEffectHelper() override;
-
-    QBrush getAcrylicBrush() const;
-    QColor getTintColor() const;
-    qreal getTintOpacity() const;
-    qreal getNoiseOpacity() const;
-    QPixmap getBluredWallpaper() const;
-    QColor getFrameColor() const;
-    qreal getFrameThickness() const;
-
-public Q_SLOTS:
-    void install(const QWindow *window);
-    void uninstall();
-
-    void clearWallpaper();
-
-    void showWarning() const;
+    explicit QtAcrylicEffectHelper();
+    ~QtAcrylicEffectHelper();
 
     void setTintColor(const QColor &value);
-    void setTintOpacity(const qreal value);
-    void setNoiseOpacity(const qreal value);
-    void setFrameColor(const QColor &value);
-    void setFrameThickness(const qreal value);
+    QColor getTintColor() const;
 
-    void paintWindowBackground(QPainter *painter, const QRegion &clip);
-    void paintWindowBackground(QPainter *painter, const QRect &rect);
-    void paintWindowFrame(QPainter *painter, const QRect &rect = {});
+    void setTintOpacity(const qreal value);
+    qreal getTintOpacity() const;
+
+    void setNoiseOpacity(const qreal value);
+    qreal getNoiseOpacity() const;
+
+    QBrush getAcrylicBrush() const;
+    QPixmap getBluredWallpaper() const;
+    void showPerformanceWarning() const;
+    void regenerateWallpaper();
+
+    void paintBackground(QPainter *painter, const QRect &rect);
     void updateAcrylicBrush(const QColor &alternativeTintColor = {});
 
 private:
-    void paintBackground(QPainter *painter, const QRect &rect);
-    void updateBehindWindowBackground();
-    bool checkWindow() const;
-
-Q_SIGNALS:
-    void needsRepaint();
+    void generateBluredWallpaper();
 
 private:
-    QWindow *m_window = nullptr;
     QBrush m_acrylicBrush = {};
     QColor m_tintColor = {};
     qreal m_tintOpacity = 0.7;
     qreal m_noiseOpacity = 0.04;
     QPixmap m_bluredWallpaper = {};
-    QColor m_frameColor = {};
-    qreal m_frameThickness = 1.0;
 };

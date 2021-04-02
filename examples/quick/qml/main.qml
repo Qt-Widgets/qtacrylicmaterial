@@ -22,41 +22,36 @@
  * SOFTWARE.
  */
 
-#pragma once
+import QtQuick 2.9
+import QtQuick.Window 2.9
+import QtQuick.Controls 2.9
+import wangwenx190.Utils 1.0
 
-#include "qtacrylichelper_global.h"
-#include <QtCore/qcoreevent.h>
-#include <QtCore/qabstractnativeeventfilter.h>
+Window {
+    id: window
+    visible: true
+    width: 800
+    height: 600
+    title: qsTr("Hello, World!")
 
-class QTACRYLICHELPER_API QtAcrylicWinUpdateEvent : public QEvent
-{
-public:
-    static const int QtAcrylicEffectChangeEventId;
-
-    explicit QtAcrylicWinUpdateEvent(const bool clearWallpaper = false);
-    ~QtAcrylicWinUpdateEvent() override;
-
-    inline bool shouldClearPreviousWallpaper() const
-    {
-        return m_shouldClearPreviousWallpaper;
+    Timer {
+        id: timer
+        interval: 500
+        running: true
+        repeat: true
+        onTriggered: label.text = Qt.formatTime(new Date(), "hh:mm:ss")
     }
 
-private:
-    bool m_shouldClearPreviousWallpaper = false;
-};
+    AcrylicItem {
+        anchors.fill: parent
+    }
 
-class QTACRYLICHELPER_API QtAcrylicWinEventFilter : public QAbstractNativeEventFilter
-{
-public:
-    explicit QtAcrylicWinEventFilter();
-    ~QtAcrylicWinEventFilter() override;
-
-    static void setup();
-    static void unsetup();
-
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    bool nativeEventFilter(const QByteArray &eventType, void *message, qintptr *result) override;
-#else
-    bool nativeEventFilter(const QByteArray &eventType, void *message, long *result) override;
-#endif
-};
+    Label {
+        id: label
+        anchors.centerIn: parent
+        font {
+            pointSize: 70
+            bold: true
+        }
+    }
+}

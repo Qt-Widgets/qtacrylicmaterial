@@ -26,10 +26,10 @@
 #include "utilities.h"
 #include <QtGui/qpainter.h>
 #include <QtCore/qdebug.h>
-#include <QtGui/qwindow.h>
-#include <QtCore/qcoreapplication.h>
+#include <QtGui/qguiapplication.h>
+#include <QtGui/qscreen.h>
 
-QtAcrylicEffectHelper::QtAcrylicEffectHelper(QObject *parent) : QObject(parent)
+QtAcrylicEffectHelper::QtAcrylicEffectHelper()
 {
     Q_INIT_RESOURCE(qtacrylichelper);
     QCoreApplication::setAttribute(Qt::AA_DontCreateNativeWidgetSiblings);
@@ -38,60 +38,21 @@ QtAcrylicEffectHelper::QtAcrylicEffectHelper(QObject *parent) : QObject(parent)
         m_tintOpacity = 0.6;
     }
 #endif
-#ifdef Q_OS_WINDOWS
-    m_frameColor = Utilities::getNativeWindowFrameColor(true);
-#else
-    m_frameColor = Qt::black;
-#endif
 }
 
 QtAcrylicEffectHelper::~QtAcrylicEffectHelper() = default;
 
-void QtAcrylicEffectHelper::install(const QWindow *window)
+void QtAcrylicEffectHelper::showPerformanceWarning() const
 {
-    Q_ASSERT(window);
-    if (!window) {
-        return;
-    }
-    if (m_window != window) {
-        m_window = const_cast<QWindow *>(window);
-        connect(m_window, &QWindow::xChanged, this, &QtAcrylicEffectHelper::needsRepaint);
-        connect(m_window, &QWindow::yChanged, this, &QtAcrylicEffectHelper::needsRepaint);
-        connect(m_window, &QWindow::activeChanged, this, &QtAcrylicEffectHelper::needsRepaint);
-        // What's the difference between "visibility" and "window state"?
-        //connect(m_window, &QWindow::visibilityChanged, this, &QtAcrylicEffectHelper::needsRepaint);
-        connect(m_window, &QWindow::windowStateChanged, this, &QtAcrylicEffectHelper::needsRepaint);
-#ifdef Q_OS_WINDOWS
-        //QtAcrylicWinEventFilter::setup();
-#endif
-    }
+    qDebug() << "The Acrylic blur effect has been enabled. Rendering acrylic material surfaces is highly GPU-intensive, which can slow down the application, increase the power consumption on the devices on which the application is running.";
 }
 
-void QtAcrylicEffectHelper::uninstall()
-{
-    if (m_window) {
-#ifdef Q_OS_WINDOWS
-        //QtAcrylicWinEventFilter::unsetup();
-#endif
-        disconnect(m_window, &QWindow::xChanged, this, &QtAcrylicEffectHelper::needsRepaint);
-        disconnect(m_window, &QWindow::yChanged, this, &QtAcrylicEffectHelper::needsRepaint);
-        disconnect(m_window, &QWindow::activeChanged, this, &QtAcrylicEffectHelper::needsRepaint);
-        //disconnect(m_window, &QWindow::visibilityChanged, this, &QtAcrylicEffectHelper::needsRepaint);
-        disconnect(m_window, &QWindow::windowStateChanged, this, &QtAcrylicEffectHelper::needsRepaint);
-        m_window = nullptr;
-    }
-}
-
-void QtAcrylicEffectHelper::clearWallpaper()
+void QtAcrylicEffectHelper::regenerateWallpaper()
 {
     if (!m_bluredWallpaper.isNull()) {
         m_bluredWallpaper = {};
     }
-}
-
-void QtAcrylicEffectHelper::showWarning() const
-{
-    qDebug() << "The Acrylic blur effect has been enabled. Rendering acrylic material surfaces is highly GPU-intensive, which can slow down the application, increase the power consumption on the devices on which the application is running.";
+    generateBluredWallpaper();
 }
 
 QBrush QtAcrylicEffectHelper::getAcrylicBrush() const
@@ -119,16 +80,6 @@ QPixmap QtAcrylicEffectHelper::getBluredWallpaper() const
     return m_bluredWallpaper;
 }
 
-QColor QtAcrylicEffectHelper::getFrameColor() const
-{
-    return m_frameColor;
-}
-
-qreal QtAcrylicEffectHelper::getFrameThickness() const
-{
-    return m_frameThickness;
-}
-
 void QtAcrylicEffectHelper::setTintColor(const QColor &value)
 {
     if (!value.isValid()) {
@@ -154,56 +105,6 @@ void QtAcrylicEffectHelper::setNoiseOpacity(const qreal value)
     }
 }
 
-void QtAcrylicEffectHelper::setFrameColor(const QColor &value)
-{
-    if (!value.isValid()) {
-        qWarning() << value << "is not a valid color.";
-        return;
-    }
-    if (m_frameColor != value) {
-        m_frameColor = value;
-    }
-}
-
-void QtAcrylicEffectHelper::setFrameThickness(const qreal value)
-{
-    if (m_frameThickness != value) {
-        m_frameThickness = value;
-    }
-}
-
-void QtAcrylicEffectHelper::paintWindowBackground(QPainter *painter, const QRegion &clip)
-{
-    Q_ASSERT(painter);
-    Q_ASSERT(!clip.isEmpty());
-    if (!painter || clip.isEmpty()) {
-        return;
-    }
-    if (!checkWindow()) {
-        return;
-    }
-    painter->save();
-    painter->setClipRegion(clip);
-    paintBackground(painter, clip.boundingRect());
-    painter->restore();
-}
-
-void QtAcrylicEffectHelper::paintWindowBackground(QPainter *painter, const QRect &rect)
-{
-    Q_ASSERT(painter);
-    Q_ASSERT(rect.isValid());
-    if (!painter || !rect.isValid()) {
-        return;
-    }
-    if (!checkWindow()) {
-        return;
-    }
-    painter->save();
-    painter->setClipRegion({rect});
-    paintBackground(painter, rect);
-    painter->restore();
-}
-
 void QtAcrylicEffectHelper::paintBackground(QPainter *painter, const QRect &rect)
 {
     Q_ASSERT(painter);
@@ -211,65 +112,28 @@ void QtAcrylicEffectHelper::paintBackground(QPainter *painter, const QRect &rect
     if (!painter || !rect.isValid()) {
         return;
     }
-    if (!checkWindow()) {
-        return;
-    }
     // TODO: should we limit it to Win32 only? Or should we do something about the
     // acrylic brush instead?
     if (Utilities::disableExtraProcessingForBlur()) {
         return;
     }
+    painter->save();
+    const QRect maskRect = {QPoint{0, 0}, rect.size()};
     if (Utilities::shouldUseTraditionalBlur()) {
         const QPainter::CompositionMode mode = painter->compositionMode();
         painter->setCompositionMode(QPainter::CompositionMode_Clear);
-        painter->fillRect(rect, Qt::white);
+        painter->fillRect(maskRect, Qt::white);
         painter->setCompositionMode(mode);
     } else {
         // Emulate blur behind window by blurring the desktop wallpaper.
-        updateBehindWindowBackground();
-        painter->drawPixmap(QPoint{0, 0}, m_bluredWallpaper, QRect{m_window->mapToGlobal(QPoint{0, 0}), rect.size()});
+        if (m_bluredWallpaper.isNull()) {
+            generateBluredWallpaper();
+        }
+        painter->drawPixmap(QPoint{0, 0}, m_bluredWallpaper, rect);
     }
     painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
     painter->setOpacity(1);
-    painter->fillRect(rect, m_acrylicBrush);
-}
-
-void QtAcrylicEffectHelper::paintWindowFrame(QPainter *painter, const QRect &rect)
-{
-    Q_ASSERT(painter);
-    if (!painter) {
-        return;
-    }
-    if (!checkWindow()) {
-        return;
-    }
-    if (m_window->windowState() != Qt::WindowNoState) {
-        // We shouldn't draw the window frame when it's minimized/maximized/fullscreen.
-        return;
-    }
-    const int width = rect.isValid() ? rect.width() : m_window->width();
-    const int height = rect.isValid() ? rect.height() : m_window->height();
-#if (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
-    using BorderLines = QList<QLineF>;
-#else
-    using BorderLines = QVector<QLineF>;
-#endif
-#ifdef Q_OS_WINDOWS
-    const int internalFix = 1;
-#else
-    const int internalFix = 0;
-#endif
-    const BorderLines lines = {
-        {0, 0, static_cast<qreal>(width), 0},
-        {width - m_frameThickness, 0, width - m_frameThickness, static_cast<qreal>(height)},
-        {static_cast<qreal>(width), height - m_frameThickness - internalFix, 0, height - m_frameThickness - internalFix},
-        {0, static_cast<qreal>(height), 0, 0}
-    };
-    const bool active = m_window->isActive();
-    const QColor color = (active && m_frameColor.isValid() && (m_frameColor != Qt::transparent)) ? m_frameColor : Utilities::getNativeWindowFrameColor(active);
-    painter->save();
-    painter->setPen({color, 1});
-    painter->drawLines(lines);
+    painter->fillRect(maskRect, m_acrylicBrush);
     painter->restore();
 }
 
@@ -303,15 +167,12 @@ void QtAcrylicEffectHelper::updateAcrylicBrush(const QColor &alternativeTintColo
     m_acrylicBrush = acrylicTexture;
 }
 
-void QtAcrylicEffectHelper::updateBehindWindowBackground()
+void QtAcrylicEffectHelper::generateBluredWallpaper()
 {
-    if (!checkWindow()) {
-        return;
-    }
     if (!m_bluredWallpaper.isNull()) {
         return;
     }
-    const QSize size = Utilities::getScreenGeometry(m_window).size();
+    const QSize size = QGuiApplication::primaryScreen()->size();
     m_bluredWallpaper = QPixmap(size);
     m_bluredWallpaper.fill(Qt::transparent);
     QImage image = Utilities::getDesktopWallpaperImage();
@@ -356,13 +217,4 @@ void QtAcrylicEffectHelper::updateBehindWindowBackground()
 #else
     painter.drawImage(QPoint{0, 0}, buffer);
 #endif
-}
-
-bool QtAcrylicEffectHelper::checkWindow() const
-{
-    if (m_window) {
-        return true;
-    }
-    qWarning() << "m_window is null, forgot to call \"QtAcrylicEffectHelper::install()\"?";
-    return false;
 }

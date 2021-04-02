@@ -24,21 +24,23 @@
 
 #include "qtacrylicitem.h"
 #include <QtQuick/qquickwindow.h>
-#include "utilities.h"
 #include <QtCore/qdebug.h>
-#include <QtGui/qpainter.h>
 
 QtAcrylicItem::QtAcrylicItem(QQuickItem *parent) : QQuickPaintedItem(parent)
 {
-    connect(this, &QtAcrylicItem::windowChanged, this, [this](QQuickWindow *win){
-        if (m_repaintConnection) {
-            disconnect(m_repaintConnection);
-        }
-        m_acrylicHelper.uninstall();
-        if (win) {
-            m_acrylicHelper.install(win);
-            m_acrylicHelper.updateAcrylicBrush();
-            m_repaintConnection = connect(&m_acrylicHelper, &QtAcrylicEffectHelper::needsRepaint, this, [this](){
+    m_acrylicHelper.updateAcrylicBrush(tintColor());
+    connect(this, &QtAcrylicItem::xChanged, this, [this](){
+        update();
+    });
+    connect(this, &QtAcrylicItem::yChanged, this, [this](){
+        update();
+    });
+    connect(this, &QtAcrylicItem::windowChanged, this, [this](QQuickWindow *w){
+        if (w) {
+            connect(w, &QQuickWindow::xChanged, this, [this](){
+                update();
+            });
+            connect(w, &QQuickWindow::yChanged, this, [this](){
                 update();
             });
         }
@@ -49,13 +51,8 @@ QtAcrylicItem::~QtAcrylicItem() = default;
 
 void QtAcrylicItem::paint(QPainter *painter)
 {
-    const QRect rect = {0, 0, qRound(width()), qRound(height())};
-    if (acrylicEnabled()) {
-        m_acrylicHelper.paintWindowBackground(painter, rect);
-    }
-    if (frameVisible()) {
-        m_acrylicHelper.paintWindowFrame(painter, rect);
-    }
+    const QRectF rectF = {mapToGlobal(QPointF{0, 0}), size()};
+    m_acrylicHelper.paintBackground(painter, rectF.toRect());
 }
 
 QColor QtAcrylicItem::tintColor() const
@@ -114,64 +111,5 @@ void QtAcrylicItem::setNoiseOpacity(const qreal value)
         m_acrylicHelper.updateAcrylicBrush(tintColor());
         update();
         Q_EMIT noiseOpacityChanged();
-    }
-}
-
-bool QtAcrylicItem::frameVisible() const
-{
-    return m_frameVisible;
-}
-
-void QtAcrylicItem::setFrameVisible(const bool value)
-{
-    if (m_frameVisible != value) {
-        m_frameVisible = value;
-        update();
-        Q_EMIT frameVisibleChanged();
-    }
-}
-
-QColor QtAcrylicItem::frameColor() const
-{
-    return m_acrylicHelper.getFrameColor();
-}
-
-void QtAcrylicItem::setFrameColor(const QColor &value)
-{
-    if (m_acrylicHelper.getFrameColor() != value) {
-        m_acrylicHelper.setFrameColor(value);
-        update();
-        Q_EMIT frameColorChanged();
-    }
-}
-
-qreal QtAcrylicItem::frameThickness() const
-{
-    return m_acrylicHelper.getFrameThickness();
-}
-
-void QtAcrylicItem::setFrameThickness(const qreal value)
-{
-    if (m_acrylicHelper.getFrameThickness() != value) {
-        m_acrylicHelper.setFrameThickness(value);
-        update();
-        Q_EMIT frameThicknessChanged();
-    }
-}
-
-bool QtAcrylicItem::acrylicEnabled() const
-{
-    return m_acrylicEnabled;
-}
-
-void QtAcrylicItem::setAcrylicEnabled(const bool value)
-{
-    if (m_acrylicEnabled != value) {
-        m_acrylicEnabled = value;
-        update();
-        Q_EMIT acrylicEnabledChanged();
-        if (m_acrylicEnabled) {
-            m_acrylicHelper.showWarning();
-        }
     }
 }

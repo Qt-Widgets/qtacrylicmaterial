@@ -22,41 +22,42 @@
  * SOFTWARE.
  */
 
-#pragma once
+#include <windows.h>
 
-#include "qtacrylichelper_global.h"
-#include <QtCore/qcoreevent.h>
-#include <QtCore/qabstractnativeeventfilter.h>
+IDI_ICON1 ICON "windows.ico"
 
-class QTACRYLICHELPER_API QtAcrylicWinUpdateEvent : public QEvent
-{
-public:
-    static const int QtAcrylicEffectChangeEventId;
+//CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "windows.manifest"
 
-    explicit QtAcrylicWinUpdateEvent(const bool clearWallpaper = false);
-    ~QtAcrylicWinUpdateEvent() override;
-
-    inline bool shouldClearPreviousWallpaper() const
-    {
-        return m_shouldClearPreviousWallpaper;
-    }
-
-private:
-    bool m_shouldClearPreviousWallpaper = false;
-};
-
-class QTACRYLICHELPER_API QtAcrylicWinEventFilter : public QAbstractNativeEventFilter
-{
-public:
-    explicit QtAcrylicWinEventFilter();
-    ~QtAcrylicWinEventFilter() override;
-
-    static void setup();
-    static void unsetup();
-
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    bool nativeEventFilter(const QByteArray &eventType, void *message, qintptr *result) override;
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION     1,0,0,0
+PRODUCTVERSION  1,0,0,0
+FILEFLAGSMASK   0x3fL
+#ifdef _DEBUG
+FILEFLAGS       VS_FF_DEBUG
 #else
-    bool nativeEventFilter(const QByteArray &eventType, void *message, long *result) override;
+FILEFLAGS       0x0L
 #endif
-};
+FILEOS          VOS_NT_WINDOWS32
+FILETYPE        VFT_APP
+FILESUBTYPE     VFT2_UNKNOWN
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "Comments",         "Built by the Qt Toolkit."
+            VALUE "CompanyName",      "wangwenx190"
+            VALUE "FileDescription",  "A QtAcrylicMaterial based Qt application."
+            VALUE "FileVersion",      "1.0.0.0"
+            VALUE "InternalName",     ""
+            VALUE "LegalCopyright",   "MIT License"
+            VALUE "OriginalFilename", ""
+            VALUE "ProductName",      "Test Application"
+            VALUE "ProductVersion",   "1.0.0.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END

@@ -24,21 +24,17 @@
 
 #pragma once
 
-#include "framelesshelper_global.h"
+#include "qtacrylichelper_global.h"
 #include <QtWidgets/qwidget.h>
 #include "qtacryliceffecthelper.h"
 
-class FRAMELESSHELPER_EXPORT QtAcrylicWidget : public QWidget
+class QTACRYLICHELPER_API QtAcrylicWidget : public QWidget
 {
     Q_OBJECT
     Q_DISABLE_COPY_MOVE(QtAcrylicWidget)
     Q_PROPERTY(QColor tintColor READ tintColor WRITE setTintColor NOTIFY tintColorChanged)
     Q_PROPERTY(qreal tintOpacity READ tintOpacity WRITE setTintOpacity NOTIFY tintOpacityChanged)
     Q_PROPERTY(qreal noiseOpacity READ noiseOpacity WRITE setNoiseOpacity NOTIFY noiseOpacityChanged)
-    Q_PROPERTY(bool frameVisible READ frameVisible WRITE setFrameVisible NOTIFY frameVisibleChanged)
-    Q_PROPERTY(QColor frameColor READ frameColor WRITE setFrameColor NOTIFY frameColorChanged)
-    Q_PROPERTY(qreal frameThickness READ frameThickness WRITE setFrameThickness NOTIFY frameThicknessChanged)
-    Q_PROPERTY(bool acrylicEnabled READ acrylicEnabled WRITE setAcrylicEnabled NOTIFY acrylicEnabledChanged)
 
 public:
     explicit QtAcrylicWidget(QWidget *parent = nullptr);
@@ -53,34 +49,15 @@ public:
     qreal noiseOpacity() const;
     void setNoiseOpacity(const qreal value);
 
-    bool frameVisible() const;
-    void setFrameVisible(const bool value);
-
-    QColor frameColor() const;
-    void setFrameColor(const QColor &value);
-
-    qreal frameThickness() const;
-    void setFrameThickness(const qreal value);
-
-    bool acrylicEnabled() const;
-    void setAcrylicEnabled(const bool value);
-
 Q_SIGNALS:
     void tintColorChanged();
     void tintOpacityChanged();
     void noiseOpacityChanged();
-    void frameVisibleChanged();
-    void frameColorChanged();
-    void frameThicknessChanged();
-    void acrylicEnabledChanged();
 
 protected:
-    void showEvent(QShowEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
+    void moveEvent(QMoveEvent *event) override;
 
 private:
     QtAcrylicEffectHelper m_acrylicHelper;
-    bool m_frameVisible = true;
-    bool m_acrylicEnabled = false;
-    bool m_inited = false;
 };
