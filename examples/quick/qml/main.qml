@@ -33,6 +33,7 @@ Window {
     width: 800
     height: 600
     title: qsTr("Hello, World!")
+    color: "transparent"
 
     Timer {
         id: timer

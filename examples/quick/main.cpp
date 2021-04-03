@@ -27,6 +27,7 @@
 #include <QtQml/qqmlapplicationengine.h>
 #include <QtQuickControls2/qquickstyle.h>
 #include <QtQuick/qquickwindow.h>
+#include "utilities.h"
 
 int main(int argc, char *argv[])
 {
@@ -82,6 +83,15 @@ int main(int argc, char *argv[])
         Qt::QueuedConnection);
 
     engine.load(mainQmlUrl);
+
+    const auto window = qobject_cast<QQuickWindow *>(engine.rootObjects().at(0));
+    if (window) {
+        if (!Utilities::setBlurEffectEnabled(window, true)) {
+            qWarning("Failed to enable the blur effect.");
+        }
+    } else {
+        qWarning("Failed to acquire the root window.");
+    }
 
     return QGuiApplication::exec();
 }

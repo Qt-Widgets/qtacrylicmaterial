@@ -30,6 +30,8 @@
 
 Widget::Widget(QWidget *parent) : QWidget(parent)
 {
+    setAutoFillBackground(false);
+    setAttribute(Qt::WA_NoSystemBackground);
     setupUi();
     startTimer(500);
 }

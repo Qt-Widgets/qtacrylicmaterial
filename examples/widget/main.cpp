@@ -24,6 +24,7 @@
 
 #include <QtWidgets/qapplication.h>
 #include "widget.h"
+#include "utilities.h"
 
 int main(int argc, char *argv[])
 {
@@ -52,6 +53,15 @@ int main(int argc, char *argv[])
     Widget widget;
     widget.resize(800, 600);
     widget.show();
+
+    const auto window = widget.windowHandle();
+    if (window) {
+        if (!Utilities::setBlurEffectEnabled(window, true)) {
+            qWarning("Failed to enable the blur effect.");
+        }
+    } else {
+        qWarning("Failed to acquire the window handle.");
+    }
 
     return QApplication::exec();
 }

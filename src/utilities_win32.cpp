@@ -491,7 +491,8 @@ static inline bool shouldUseOfficialMSWin10AcrylicBlur()
     if (currentVersion > QOperatingSystemVersion::Windows10) {
         return true;
     }
-    return ((currentVersion.microVersion() >= 16190) && (currentVersion.microVersion() < 18362));
+    // For these versions, the undocumented API is known to be working well.
+    return (((currentVersion.microVersion() >= 16190) && (currentVersion.microVersion() < 18362)) || (currentVersion.microVersion() >= 21343));
 #else
     // TODO
     return false;
