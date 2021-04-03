@@ -28,6 +28,7 @@
 
 QtAcrylicWidget::QtAcrylicWidget(QWidget *parent) : QWidget(parent)
 {
+    m_acrylicHelper.showPerformanceWarning();
     m_acrylicHelper.updateAcrylicBrush(tintColor());
 }
 

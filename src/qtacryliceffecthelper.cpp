@@ -29,10 +29,17 @@
 #include <QtGui/qguiapplication.h>
 #include <QtGui/qscreen.h>
 
+// We only need one copy of the blured wallpaper for the whole application.
+// But making it a static variable is not allowed because a QPixmap can't
+// be constructed before a QGuiApplication, so we use "Q_GLOBAL_STATIC" instead,
+// it will be initialized when we first use it.
+Q_GLOBAL_STATIC(QPixmap, g_bluredWallpaper)
+
 QtAcrylicEffectHelper::QtAcrylicEffectHelper()
 {
+    // We have to put it here because the place we are using it is a static variable.
     Q_INIT_RESOURCE(qtacrylichelper);
-    QCoreApplication::setAttribute(Qt::AA_DontCreateNativeWidgetSiblings);
+    //QCoreApplication::setAttribute(Qt::AA_DontCreateNativeWidgetSiblings);
 #ifdef Q_OS_MACOS
     if (Utilities::shouldUseTraditionalBlur()) {
         m_tintOpacity = 0.6;
@@ -44,23 +51,26 @@ QtAcrylicEffectHelper::~QtAcrylicEffectHelper() = default;
 
 void QtAcrylicEffectHelper::showPerformanceWarning() const
 {
-    qDebug() << "The Acrylic blur effect has been enabled. Rendering acrylic material surfaces is highly GPU-intensive, which can slow down the application, increase the power consumption on the devices on which the application is running.";
+    qDebug() << "The Acrylic blur effect has been enabled. Rendering acrylic material "
+                "surfaces is highly GPU-intensive, which can slow down the application, "
+                "increase the power consumption on the devices on which the application "
+                "is running.";
 }
 
 void QtAcrylicEffectHelper::regenerateWallpaper()
 {
-    if (!m_bluredWallpaper.isNull()) {
-        m_bluredWallpaper = {};
+    if (!g_bluredWallpaper()->isNull()) {
+        *g_bluredWallpaper() = {};
     }
     generateBluredWallpaper();
 }
 
-QBrush QtAcrylicEffectHelper::getAcrylicBrush() const
+const QBrush &QtAcrylicEffectHelper::getAcrylicBrush() const
 {
     return m_acrylicBrush;
 }
 
-QColor QtAcrylicEffectHelper::getTintColor() const
+const QColor &QtAcrylicEffectHelper::getTintColor() const
 {
     return m_tintColor;
 }
@@ -75,9 +85,9 @@ qreal QtAcrylicEffectHelper::getNoiseOpacity() const
     return m_noiseOpacity;
 }
 
-QPixmap QtAcrylicEffectHelper::getBluredWallpaper() const
+const QPixmap &QtAcrylicEffectHelper::getBluredWallpaper() const
 {
-    return m_bluredWallpaper;
+    return *g_bluredWallpaper();
 }
 
 void QtAcrylicEffectHelper::setTintColor(const QColor &value)
@@ -126,10 +136,10 @@ void QtAcrylicEffectHelper::paintBackground(QPainter *painter, const QRect &rect
         painter->setCompositionMode(mode);
     } else {
         // Emulate blur behind window by blurring the desktop wallpaper.
-        if (m_bluredWallpaper.isNull()) {
+        if (g_bluredWallpaper()->isNull()) {
             generateBluredWallpaper();
         }
-        painter->drawPixmap(QPoint{0, 0}, m_bluredWallpaper, rect);
+        painter->drawPixmap(QPoint{0, 0}, *g_bluredWallpaper(), rect);
     }
     painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
     painter->setOpacity(1);
@@ -148,6 +158,8 @@ void QtAcrylicEffectHelper::updateAcrylicBrush(const QColor &alternativeTintColo
         }
         return Qt::white;
     };
+    // Make it a static variable because we only need one copy of it for the whole application.
+    // So we can't place "Q_INIT_RESOURCE" here. It must appear in the ctor of this class.
     static const QImage noiseTexture(QStringLiteral(":/QtAcrylicHelper/Noise.png"));
     QImage acrylicTexture({64, 64}, QImage::Format_ARGB32_Premultiplied);
     QColor fillColor = Qt::transparent;
@@ -169,12 +181,12 @@ void QtAcrylicEffectHelper::updateAcrylicBrush(const QColor &alternativeTintColo
 
 void QtAcrylicEffectHelper::generateBluredWallpaper()
 {
-    if (!m_bluredWallpaper.isNull()) {
+    if (!g_bluredWallpaper()->isNull()) {
         return;
     }
     const QSize size = QGuiApplication::primaryScreen()->size();
-    m_bluredWallpaper = QPixmap(size);
-    m_bluredWallpaper.fill(Qt::transparent);
+    *g_bluredWallpaper() = QPixmap(size);
+    g_bluredWallpaper()->fill(Qt::transparent);
     QImage image = Utilities::getDesktopWallpaperImage();
     // On some platforms we may not be able to get the desktop wallpaper, such as Linux and WebAssembly.
     if (image.isNull()) {
@@ -211,7 +223,7 @@ void QtAcrylicEffectHelper::generateBluredWallpaper()
         const QRect rect = Utilities::alignedRect(Qt::LeftToRight, Qt::AlignCenter, image.size(), {{0, 0}, size});
         painterBuffer.drawImage(rect.topLeft(), image);
     }
-    QPainter painter(&m_bluredWallpaper);
+    QPainter painter(g_bluredWallpaper());
 #if 1
     Utilities::blurImage(&painter, buffer, 128, false, false);
 #else

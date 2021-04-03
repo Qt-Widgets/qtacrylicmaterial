@@ -61,4 +61,6 @@ Q_SIGNALS:
 
 private:
     QtAcrylicEffectHelper m_acrylicHelper;
+    QMetaObject::Connection m_xConnection = {};
+    QMetaObject::Connection m_yConnection = {};
 };

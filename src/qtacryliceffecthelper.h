@@ -36,7 +36,7 @@ public:
     ~QtAcrylicEffectHelper();
 
     void setTintColor(const QColor &value);
-    QColor getTintColor() const;
+    const QColor &getTintColor() const;
 
     void setTintOpacity(const qreal value);
     qreal getTintOpacity() const;
@@ -44,8 +44,8 @@ public:
     void setNoiseOpacity(const qreal value);
     qreal getNoiseOpacity() const;
 
-    QBrush getAcrylicBrush() const;
-    QPixmap getBluredWallpaper() const;
+    const QBrush &getAcrylicBrush() const;
+    const QPixmap &getBluredWallpaper() const;
     void showPerformanceWarning() const;
     void regenerateWallpaper();
 
@@ -60,5 +60,4 @@ private:
     QColor m_tintColor = {};
     qreal m_tintOpacity = 0.7;
     qreal m_noiseOpacity = 0.04;
-    QPixmap m_bluredWallpaper = {};
 };

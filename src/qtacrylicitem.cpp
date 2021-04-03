@@ -28,6 +28,7 @@
 
 QtAcrylicItem::QtAcrylicItem(QQuickItem *parent) : QQuickPaintedItem(parent)
 {
+    m_acrylicHelper.showPerformanceWarning();
     m_acrylicHelper.updateAcrylicBrush(tintColor());
     connect(this, &QtAcrylicItem::xChanged, this, [this](){
         update();
@@ -36,11 +37,17 @@ QtAcrylicItem::QtAcrylicItem(QQuickItem *parent) : QQuickPaintedItem(parent)
         update();
     });
     connect(this, &QtAcrylicItem::windowChanged, this, [this](QQuickWindow *w){
+        if (m_xConnection) {
+            disconnect(m_xConnection);
+        }
+        if (m_yConnection) {
+            disconnect(m_yConnection);
+        }
         if (w) {
-            connect(w, &QQuickWindow::xChanged, this, [this](){
+            m_xConnection = connect(w, &QQuickWindow::xChanged, this, [this](){
                 update();
             });
-            connect(w, &QQuickWindow::yChanged, this, [this](){
+            m_yConnection = connect(w, &QQuickWindow::yChanged, this, [this](){
                 update();
             });
         }
@@ -51,7 +58,7 @@ QtAcrylicItem::~QtAcrylicItem() = default;
 
 void QtAcrylicItem::paint(QPainter *painter)
 {
-    const QRectF rectF = {mapToGlobal(QPointF{0, 0}), size()};
+    const QRectF rectF = {mapToGlobal(QPointF{0.0, 0.0}), size()};
     m_acrylicHelper.paintBackground(painter, rectF.toRect());
 }
 

@@ -30,7 +30,6 @@
 
 Widget::Widget(QWidget *parent) : QWidget(parent)
 {
-    createWinId();
     setupUi();
     startTimer(500);
 }
@@ -49,6 +48,7 @@ void Widget::moveEvent(QMoveEvent *event)
 {
     QWidget::moveEvent(event);
     if (m_acrylicWidget) {
+        // This line is necessary!
         m_acrylicWidget->update();
     }
 }
