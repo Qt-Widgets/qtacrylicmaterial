@@ -32,6 +32,7 @@ Widget::Widget(QWidget *parent) : QWidget(parent)
 {
     setAutoFillBackground(false);
     setAttribute(Qt::WA_NoSystemBackground);
+    setWindowTitle(tr("QtAcrylicMaterial - Widget"));
     setupUi();
     startTimer(500);
 }
