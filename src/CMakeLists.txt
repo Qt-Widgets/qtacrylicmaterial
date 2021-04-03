@@ -85,7 +85,7 @@ if(WIN32)
         UNICODE
         _UNICODE
     )
-    target_link_libraries(${PROJECT_NAME} PRIVATE dwmapi ole32)
+    target_link_libraries(${PROJECT_NAME} PRIVATE dwmapi)
 endif()
 
 if(MSVC)

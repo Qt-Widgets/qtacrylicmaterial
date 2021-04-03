@@ -42,5 +42,5 @@ if(MSVC)
 endif()
 
 if(WIN32)
-    #target_link_libraries(Quick PRIVATE user32 shell32 gdi32 dwmapi)
+    target_link_libraries(Quick PRIVATE dwmapi)
 endif()
