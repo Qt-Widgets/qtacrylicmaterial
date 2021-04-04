@@ -112,19 +112,6 @@ using Win32Data = struct _QAH_UTILITIES_WIN32_DATA
 
 Q_GLOBAL_STATIC(Win32Data, win32Data)
 
-bool _qam::Utilities::isDwmBlurAvailable()
-{
-    if (isWin8OrGreater()) {
-        return true;
-    }
-    BOOL enabled = FALSE;
-    if (FAILED(DwmIsCompositionEnabled(&enabled))) {
-        qWarning() << "DwmIsCompositionEnabled failed.";
-        return false;
-    }
-    return isWin7OrGreater() && (enabled != FALSE);
-}
-
 bool _qam::Utilities::setBlurEffectEnabled(const QWindow *window, const bool enabled, const QColor &gradientColor)
 {
     Q_ASSERT(window);
@@ -462,30 +449,12 @@ _qam::Utilities::DesktopWallpaperAspectStyle _qam::Utilities::getDesktopWallpape
     }
 }
 
-bool _qam::Utilities::isWin7OrGreater()
-{
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 9, 0))
-    return QOperatingSystemVersion::current() >= QOperatingSystemVersion::Windows7;
-#else
-    return QSysInfo::WindowsVersion >= QSysInfo::WV_WINDOWS7;
-#endif
-}
-
 bool _qam::Utilities::isWin8OrGreater()
 {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 9, 0))
     return QOperatingSystemVersion::current() >= QOperatingSystemVersion::Windows8;
 #else
     return QSysInfo::WindowsVersion >= QSysInfo::WV_WINDOWS8;
-#endif
-}
-
-bool _qam::Utilities::isWin8Point1OrGreater()
-{
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 9, 0))
-    return QOperatingSystemVersion::current() >= QOperatingSystemVersion::Windows8_1;
-#else
-    return QSysInfo::WindowsVersion >= QSysInfo::WV_WINDOWS8_1;
 #endif
 }
 
@@ -513,6 +482,11 @@ static inline bool forceEnableOfficialMSWin10AcrylicBlur()
     return qEnvironmentVariableIsSet(_qam::Global::_qam_forceEnableOfficialMSWin10AcrylicBlur_flag);
 }
 
+static inline bool forceDisableOfficialMSWin10AcrylicBlur()
+{
+    return qEnvironmentVariableIsSet(_qam::Global::_qam_forceDisableOfficialMSWin10AcrylicBlur_flag);
+}
+
 static inline bool shouldUseOfficialMSWin10AcrylicBlur()
 {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 9, 0))
@@ -533,12 +507,15 @@ bool _qam::Utilities::isOfficialMSWin10AcrylicBlurAvailable()
     if (!isWin10OrGreater()) {
         return false;
     }
-    if (!forceEnableTraditionalBlur() && !forceDisableWallpaperBlur() && !disableExtraProcessingForBlur()) {
+    if (forceDisableTraditionalBlur() || forceEnableWallpaperBlur()) {
         // We can't enable the official Acrylic blur in wallpaper blur mode.
         return false;
     }
     if (forceEnableOfficialMSWin10AcrylicBlur()) {
         return true;
+    }
+    if (forceDisableOfficialMSWin10AcrylicBlur()) {
+        return false;
     }
     return shouldUseOfficialMSWin10AcrylicBlur();
 }
@@ -555,8 +532,8 @@ static inline bool shouldUseOriginalDwmBlur()
 
 bool _qam::Utilities::shouldUseTraditionalBlur()
 {
-    if ((forceEnableTraditionalBlur() || forceDisableWallpaperBlur() || disableExtraProcessingForBlur()) && shouldUseOriginalDwmBlur()) {
-        return true;
-    }
-    return false;
+    const bool userAllowed = !(forceDisableTraditionalBlur() || forceEnableWallpaperBlur());
+    const bool osAllowed = shouldUseOriginalDwmBlur();
+    const bool result = (userAllowed && osAllowed);
+    return result;
 }

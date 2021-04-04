@@ -65,7 +65,10 @@ namespace _qam::Global {
 [[maybe_unused]] const char _qam_gradientColor_flag[] = "_QTACRYLICMATERIAL_BLUR_GRADIENT_COLOR";
 [[maybe_unused]] const char _qam_disableExtraProcess[] = "_QTACRYLICMATERIAL_DISABLE_EXTRA_PROCESS_FOR_BLUR";
 [[maybe_unused]] const char _qam_forceEnableOfficialMSWin10AcrylicBlur_flag[] = "_QTACRYLICMATERIAL_FORCE_ENABLE_MSWIN10_OFFICIAL_ACRYLIC_BLUR";
+[[maybe_unused]] const char _qam_forceDisableOfficialMSWin10AcrylicBlur_flag[] = "_QTACRYLICMATERIAL_FORCE_DISABLE_MSWIN10_OFFICIAL_ACRYLIC_BLUR";
 [[maybe_unused]] const char _qam_forceEnableTraditionalBlur_flag[] = "_QTACRYLICMATERIAL_FORCE_ENABLE_TRADITIONAL_BLUR";
+[[maybe_unused]] const char _qam_forceDisableTraditionalBlur_flag[] = "_QTACRYLICMATERIAL_FORCE_DISABLE_TRADITIONAL_BLUR";
+[[maybe_unused]] const char _qam_forceEnableWallpaperBlur_flag[] = "_QTACRYLICMATERIAL_FORCE_ENABLE_WALLPAPER_BLUR";
 [[maybe_unused]] const char _qam_forceDisableWallpaperBlur_flag[] = "_QTACRYLICMATERIAL_FORCE_DISABLE_WALLPAPER_BLUR";
 
 }

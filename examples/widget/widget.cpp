@@ -53,11 +53,9 @@ void Widget::timerEvent(QTimerEvent *event)
 void Widget::moveEvent(QMoveEvent *event)
 {
     QWidget::moveEvent(event);
-#ifdef Q_OS_WINDOWS
-    if (m_acrylicWidget && !Utilities::isWin10OrGreater()) {
+    if (m_acrylicWidget && Utilities::shouldUseWallpaperBlur()) {
         m_acrylicWidget->update();
     }
-#endif
 }
 
 void Widget::setupUi()

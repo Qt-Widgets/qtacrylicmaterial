@@ -394,6 +394,16 @@ bool _qam::Utilities::forceEnableTraditionalBlur()
     return qEnvironmentVariableIsSet(_qam::Global::_qam_forceEnableTraditionalBlur_flag);
 }
 
+bool _qam::Utilities::forceDisableTraditionalBlur()
+{
+    return qEnvironmentVariableIsSet(_qam::Global::_qam_forceDisableTraditionalBlur_flag);
+}
+
+bool _qam::Utilities::forceEnableWallpaperBlur()
+{
+    return qEnvironmentVariableIsSet(_qam::Global::_qam_forceEnableWallpaperBlur_flag);
+}
+
 bool _qam::Utilities::forceDisableWallpaperBlur()
 {
     return qEnvironmentVariableIsSet(_qam::Global::_qam_forceDisableWallpaperBlur_flag);

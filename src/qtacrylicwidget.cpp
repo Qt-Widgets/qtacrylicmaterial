@@ -25,6 +25,9 @@
 #include "qtacrylicwidget.h"
 #include <QtCore/qdebug.h>
 #include <QtGui/qpainter.h>
+#include "utilities.h"
+
+using namespace _qam;
 
 QtAcrylicWidget::QtAcrylicWidget(QWidget *parent) : QWidget(parent)
 {
@@ -102,5 +105,7 @@ void QtAcrylicWidget::paintEvent(QPaintEvent *event)
 void QtAcrylicWidget::moveEvent(QMoveEvent *event)
 {
     QWidget::moveEvent(event);
-    update();
+    if (Utilities::shouldUseWallpaperBlur()) {
+        update();
+    }
 }
