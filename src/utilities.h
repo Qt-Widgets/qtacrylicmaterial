@@ -28,7 +28,7 @@
 #include <QtGui/qcolor.h>
 #include <QtGui/qwindow.h>
 
-namespace Utilities {
+namespace _qam::Utilities {
 
 enum class DesktopWallpaperAspectStyle
 {
@@ -44,6 +44,8 @@ enum class DesktopWallpaperAspectStyle
 QTACRYLICHELPER_API bool shouldUseWallpaperBlur();
 QTACRYLICHELPER_API bool shouldUseTraditionalBlur();
 QTACRYLICHELPER_API bool setBlurEffectEnabled(const QWindow *window, const bool enabled, const QColor &gradientColor = {});
+
+QTACRYLICHELPER_API bool isDarkThemeEnabled();
 
 QTACRYLICHELPER_API QWindow *findWindow(const WId winId);
 

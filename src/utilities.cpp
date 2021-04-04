@@ -293,7 +293,7 @@ static inline QImage qt_halfScaled(const QImage &source)
     return dest;
 }
 
-void Utilities::blurImage(QPainter *painter, QImage &blurImage, const qreal radius, const bool quality, const bool alphaOnly, const int transposed)
+void _qam::Utilities::blurImage(QPainter *painter, QImage &blurImage, const qreal radius, const bool quality, const bool alphaOnly, const int transposed)
 {
     if ((blurImage.format() != QImage::Format_ARGB32_Premultiplied) && (blurImage.format() != QImage::Format_RGB32)) {
         blurImage = blurImage.convertToFormat(QImage::Format_ARGB32_Premultiplied);
@@ -317,7 +317,7 @@ void Utilities::blurImage(QPainter *painter, QImage &blurImage, const qreal radi
     }
 }
 
-void Utilities::blurImage(QImage &blurImage, const qreal radius, const bool quality, const int transposed)
+void _qam::Utilities::blurImage(QImage &blurImage, const qreal radius, const bool quality, const int transposed)
 {
     if ((blurImage.format() == QImage::Format_Indexed8) || (blurImage.format() == QImage::Format_Grayscale8)) {
         expblur<12, 10, true>(blurImage, radius, quality, transposed);
@@ -340,7 +340,7 @@ static inline Qt::Alignment visualAlignment(const Qt::LayoutDirection direction,
     return QGuiApplicationPrivate::visualAlignment(direction, alignment);
 }
 
-QRect Utilities::alignedRect(const Qt::LayoutDirection direction, const Qt::Alignment alignment, const QSize &size, const QRect &rectangle)
+QRect _qam::Utilities::alignedRect(const Qt::LayoutDirection direction, const Qt::Alignment alignment, const QSize &size, const QRect &rectangle)
 {
     const Qt::Alignment align = visualAlignment(direction, alignment);
     int x = rectangle.x();
@@ -362,7 +362,7 @@ QRect Utilities::alignedRect(const Qt::LayoutDirection direction, const Qt::Alig
 
 ///////////////////////////////////////////////////
 
-QWindow *Utilities::findWindow(const WId winId)
+QWindow *_qam::Utilities::findWindow(const WId winId)
 {
     Q_ASSERT(winId);
     if (!winId) {
@@ -379,22 +379,22 @@ QWindow *Utilities::findWindow(const WId winId)
     return nullptr;
 }
 
-bool Utilities::shouldUseWallpaperBlur()
+bool _qam::Utilities::shouldUseWallpaperBlur()
 {
     return !shouldUseTraditionalBlur();
 }
 
-bool Utilities::disableExtraProcessingForBlur()
+bool _qam::Utilities::disableExtraProcessingForBlur()
 {
-    return qEnvironmentVariableIsSet(_qah_global::_qah_disableExtraProcess);
+    return qEnvironmentVariableIsSet(_qam::Global::_qam_disableExtraProcess);
 }
 
-bool Utilities::forceEnableTraditionalBlur()
+bool _qam::Utilities::forceEnableTraditionalBlur()
 {
-    return qEnvironmentVariableIsSet(_qah_global::_qah_forceEnableTraditionalBlur_flag);
+    return qEnvironmentVariableIsSet(_qam::Global::_qam_forceEnableTraditionalBlur_flag);
 }
 
-bool Utilities::forceDisableWallpaperBlur()
+bool _qam::Utilities::forceDisableWallpaperBlur()
 {
-    return qEnvironmentVariableIsSet(_qah_global::_qah_forceDisableWallpaperBlur_flag);
+    return qEnvironmentVariableIsSet(_qam::Global::_qam_forceDisableWallpaperBlur_flag);
 }

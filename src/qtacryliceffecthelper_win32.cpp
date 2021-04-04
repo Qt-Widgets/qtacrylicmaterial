@@ -42,6 +42,8 @@
 #define WM_DPICHANGED 0x02E0
 #endif
 
+using namespace _qam;
+
 const int QtAcrylicWinUpdateEvent::QtAcrylicEffectChangeEventId = QEvent::registerEventType();
 
 QtAcrylicWinUpdateEvent::QtAcrylicWinUpdateEvent(const bool clearWallpaper) : QEvent(static_cast<QEvent::Type>(QtAcrylicEffectChangeEventId))

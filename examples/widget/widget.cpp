@@ -27,6 +27,9 @@
 #include <QtWidgets/qlabel.h>
 #include <QtCore/qdatetime.h>
 #include "qtacrylicwidget.h"
+#include "utilities.h"
+
+using namespace _qam;
 
 Widget::Widget(QWidget *parent) : QWidget(parent)
 {
@@ -50,10 +53,11 @@ void Widget::timerEvent(QTimerEvent *event)
 void Widget::moveEvent(QMoveEvent *event)
 {
     QWidget::moveEvent(event);
-    if (m_acrylicWidget) {
-        // This line is necessary!
+#ifdef Q_OS_WINDOWS
+    if (m_acrylicWidget && !Utilities::isWin10OrGreater()) {
         m_acrylicWidget->update();
     }
+#endif
 }
 
 void Widget::setupUi()

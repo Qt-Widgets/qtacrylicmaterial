@@ -81,13 +81,18 @@ using ACCENT_POLICY = struct _ACCENT_POLICY
 };
 
 static const QString g_dwmRegistryKey = QStringLiteral(R"(HKEY_CURRENT_USER\Software\Microsoft\Windows\DWM)");
+static const QString g_personalizeRegistryKey = QStringLiteral(R"(HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize)");
 static const QString g_desktopRegistryKey = QStringLiteral(R"(HKEY_CURRENT_USER\Control Panel\Desktop)");
 
 using SetWindowCompositionAttributePtr = BOOL(WINAPI *)(HWND, WINDOWCOMPOSITIONATTRIBDATA *);
+using ShouldAppsUseDarkModePtr =  BOOL(WINAPI *)();
+using ShouldSystemUseDarkModePtr = BOOL(WINAPI *)();
 
 using Win32Data = struct _QAH_UTILITIES_WIN32_DATA
 {
     SetWindowCompositionAttributePtr SetWindowCompositionAttributePFN = nullptr;
+    ShouldAppsUseDarkModePtr ShouldAppsUseDarkModePFN = nullptr;
+    ShouldSystemUseDarkModePtr ShouldSystemUseDarkModePFN = nullptr;
 
     _QAH_UTILITIES_WIN32_DATA()
     {
@@ -98,12 +103,16 @@ using Win32Data = struct _QAH_UTILITIES_WIN32_DATA
     {
         QLibrary User32Dll(QStringLiteral("User32"));
         SetWindowCompositionAttributePFN = reinterpret_cast<SetWindowCompositionAttributePtr>(User32Dll.resolve("SetWindowCompositionAttribute"));
+
+        QLibrary UxThemeDll(QStringLiteral("UxTheme"));
+        ShouldAppsUseDarkModePFN = reinterpret_cast<ShouldAppsUseDarkModePtr>(UxThemeDll.resolve(MAKEINTRESOURCEA(132)));
+        ShouldSystemUseDarkModePFN = reinterpret_cast<ShouldSystemUseDarkModePtr>(UxThemeDll.resolve(MAKEINTRESOURCEA(138)));
     }
 };
 
 Q_GLOBAL_STATIC(Win32Data, win32Data)
 
-bool Utilities::isDwmBlurAvailable()
+bool _qam::Utilities::isDwmBlurAvailable()
 {
     if (isWin8OrGreater()) {
         return true;
@@ -116,7 +125,7 @@ bool Utilities::isDwmBlurAvailable()
     return isWin7OrGreater() && (enabled != FALSE);
 }
 
-bool Utilities::setBlurEffectEnabled(const QWindow *window, const bool enabled, const QColor &gradientColor)
+bool _qam::Utilities::setBlurEffectEnabled(const QWindow *window, const bool enabled, const QColor &gradientColor)
 {
     Q_ASSERT(window);
     if (!window) {
@@ -176,13 +185,13 @@ bool Utilities::setBlurEffectEnabled(const QWindow *window, const bool enabled, 
     }
     if (result) {
         const auto win = const_cast<QWindow *>(window);
-        win->setProperty(_qah_global::_qah_blurEnabled_flag, enabled);
-        win->setProperty(_qah_global::_qah_gradientColor_flag, gradientColor);
+        win->setProperty(_qam::Global::_qam_blurEnabled_flag, enabled);
+        win->setProperty(_qam::Global::_qam_gradientColor_flag, gradientColor);
     }
     return result;
 }
 
-QColor Utilities::getColorizationColor()
+QColor _qam::Utilities::getColorizationColor()
 {
     DWORD color = 0;
     BOOL opaqueBlend = FALSE;
@@ -196,7 +205,27 @@ QColor Utilities::getColorizationColor()
     return ok ? QColor::fromRgba(value) : Qt::darkGray;
 }
 
-QImage Utilities::getDesktopWallpaperImage(const int screen)
+bool _qam::Utilities::isDarkThemeEnabled()
+{
+    if (!isWin10OrGreater()) {
+        return false;
+    }
+    // We can't use ShouldAppsUseDarkMode due to the following reason:
+    // it's not exported publicly so we can only load it dynamically through its ordinal name,
+    // however, its ordinal name has changed in some unknown system versions so we can't find
+    // the actual function now. But ShouldSystemUseDarkMode is not affected, we can still
+    // use it in the latest version of Windows.
+    if (win32Data()->ShouldSystemUseDarkModePFN) {
+        return win32Data()->ShouldSystemUseDarkModePFN();
+    }
+    qDebug() << "ShouldSystemUseDarkMode() not available, reading from the registry instead.";
+    bool ok = false;
+    const QSettings settings(g_personalizeRegistryKey, QSettings::NativeFormat);
+    const bool lightThemeEnabled = settings.value(QStringLiteral("AppsUseLightTheme"), 0).toULongLong(&ok) != 0;
+    return (ok && !lightThemeEnabled);
+}
+
+QImage _qam::Utilities::getDesktopWallpaperImage(const int screen)
 {
     if (isWin8OrGreater()) {
         if (SUCCEEDED(CoInitialize(nullptr))) {
@@ -287,7 +316,7 @@ QImage Utilities::getDesktopWallpaperImage(const int screen)
     return {};
 }
 
-QColor Utilities::getDesktopBackgroundColor(const int screen)
+QColor _qam::Utilities::getDesktopBackgroundColor(const int screen)
 {
     Q_UNUSED(screen); // TODO: make use of it.
     if (isWin8OrGreater()) {
@@ -322,7 +351,7 @@ QColor Utilities::getDesktopBackgroundColor(const int screen)
     return Qt::black;
 }
 
-Utilities::DesktopWallpaperAspectStyle Utilities::getDesktopWallpaperAspectStyle(const int screen)
+_qam::Utilities::DesktopWallpaperAspectStyle _qam::Utilities::getDesktopWallpaperAspectStyle(const int screen)
 {
     Q_UNUSED(screen); // TODO: make use of it.
     if (isWin8OrGreater()) {
@@ -433,7 +462,7 @@ Utilities::DesktopWallpaperAspectStyle Utilities::getDesktopWallpaperAspectStyle
     }
 }
 
-bool Utilities::isWin7OrGreater()
+bool _qam::Utilities::isWin7OrGreater()
 {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 9, 0))
     return QOperatingSystemVersion::current() >= QOperatingSystemVersion::Windows7;
@@ -442,7 +471,7 @@ bool Utilities::isWin7OrGreater()
 #endif
 }
 
-bool Utilities::isWin8OrGreater()
+bool _qam::Utilities::isWin8OrGreater()
 {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 9, 0))
     return QOperatingSystemVersion::current() >= QOperatingSystemVersion::Windows8;
@@ -451,7 +480,7 @@ bool Utilities::isWin8OrGreater()
 #endif
 }
 
-bool Utilities::isWin8Point1OrGreater()
+bool _qam::Utilities::isWin8Point1OrGreater()
 {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 9, 0))
     return QOperatingSystemVersion::current() >= QOperatingSystemVersion::Windows8_1;
@@ -460,7 +489,7 @@ bool Utilities::isWin8Point1OrGreater()
 #endif
 }
 
-bool Utilities::isWin10OrGreater()
+bool _qam::Utilities::isWin10OrGreater()
 {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 9, 0))
     return QOperatingSystemVersion::current() >= QOperatingSystemVersion::Windows10;
@@ -469,7 +498,7 @@ bool Utilities::isWin10OrGreater()
 #endif
 }
 
-bool Utilities::isWin10OrGreater(const int subVer)
+bool _qam::Utilities::isWin10OrGreater(const int subVer)
 {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 9, 0))
     return QOperatingSystemVersion::current() >= QOperatingSystemVersion(QOperatingSystemVersion::Windows, 10, 0, subVer);
@@ -481,7 +510,7 @@ bool Utilities::isWin10OrGreater(const int subVer)
 
 static inline bool forceEnableOfficialMSWin10AcrylicBlur()
 {
-    return qEnvironmentVariableIsSet(_qah_global::_qah_forceEnableOfficialMSWin10AcrylicBlur_flag);
+    return qEnvironmentVariableIsSet(_qam::Global::_qam_forceEnableOfficialMSWin10AcrylicBlur_flag);
 }
 
 static inline bool shouldUseOfficialMSWin10AcrylicBlur()
@@ -499,7 +528,7 @@ static inline bool shouldUseOfficialMSWin10AcrylicBlur()
 #endif
 }
 
-bool Utilities::isOfficialMSWin10AcrylicBlurAvailable()
+bool _qam::Utilities::isOfficialMSWin10AcrylicBlurAvailable()
 {
     if (!isWin10OrGreater()) {
         return false;
@@ -517,14 +546,14 @@ bool Utilities::isOfficialMSWin10AcrylicBlurAvailable()
 static inline bool shouldUseOriginalDwmBlur()
 {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 9, 0))
-    return Utilities::isWin10OrGreater() || (QOperatingSystemVersion::current() >= QOperatingSystemVersion::OSXYosemite);
+    return _qam::Utilities::isWin10OrGreater() || (QOperatingSystemVersion::current() >= QOperatingSystemVersion::OSXYosemite);
 #else
     // TODO
     return false;
 #endif
 }
 
-bool Utilities::shouldUseTraditionalBlur()
+bool _qam::Utilities::shouldUseTraditionalBlur()
 {
     if ((forceEnableTraditionalBlur() || forceDisableWallpaperBlur() || disableExtraProcessingForBlur()) && shouldUseOriginalDwmBlur()) {
         return true;

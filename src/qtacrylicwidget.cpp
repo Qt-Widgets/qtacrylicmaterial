@@ -29,7 +29,7 @@
 QtAcrylicWidget::QtAcrylicWidget(QWidget *parent) : QWidget(parent)
 {
     m_acrylicHelper.showPerformanceWarning();
-    m_acrylicHelper.updateAcrylicBrush(tintColor());
+    m_acrylicHelper.updateAcrylicBrush();
 }
 
 QtAcrylicWidget::~QtAcrylicWidget() = default;
@@ -55,7 +55,7 @@ void QtAcrylicWidget::setTintColor(const QColor &value)
         QPalette pal = palette();
         pal.setColor(backgroundRole(), m_acrylicHelper.getTintColor());
         setPalette(pal);
-        //m_acrylicHelper.updateAcrylicBrush(tintColor());
+        //m_acrylicHelper.updateAcrylicBrush();
         update();
         Q_EMIT tintColorChanged();
     }
@@ -70,7 +70,7 @@ void QtAcrylicWidget::setTintOpacity(const qreal value)
 {
     if (m_acrylicHelper.getTintOpacity() != value) {
         m_acrylicHelper.setTintOpacity(value);
-        m_acrylicHelper.updateAcrylicBrush(tintColor());
+        m_acrylicHelper.updateAcrylicBrush();
         update();
         Q_EMIT tintOpacityChanged();
     }
@@ -85,7 +85,7 @@ void QtAcrylicWidget::setNoiseOpacity(const qreal value)
 {
     if (m_acrylicHelper.getNoiseOpacity() != value) {
         m_acrylicHelper.setNoiseOpacity(value);
-        m_acrylicHelper.updateAcrylicBrush(tintColor());
+        m_acrylicHelper.updateAcrylicBrush();
         update();
         Q_EMIT noiseOpacityChanged();
     }

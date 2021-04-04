@@ -29,6 +29,8 @@
 #include <QtGui/qguiapplication.h>
 #include <QtGui/qscreen.h>
 
+using namespace _qam;
+
 // We only need one copy of the blured wallpaper and the noise texture for the whole application.
 // But making them become static variables is not allowed because QPixmap can't be constructed
 // before QGuiApplication, so we use "Q_GLOBAL_STATIC" instead, it will be initialized when we
@@ -136,7 +138,7 @@ void QtAcrylicEffectHelper::paintBackground(QPainter *painter, const QRect &rect
     if (Utilities::shouldUseTraditionalBlur()) {
         const QPainter::CompositionMode mode = painter->compositionMode();
         painter->setCompositionMode(QPainter::CompositionMode_Clear);
-        painter->fillRect(maskRect, Qt::white);
+        painter->fillRect(maskRect, defaultMaskColor());
         painter->setCompositionMode(mode);
     } else {
         // Emulate blur behind window by blurring the desktop wallpaper.
@@ -153,15 +155,6 @@ void QtAcrylicEffectHelper::paintBackground(QPainter *painter, const QRect &rect
 
 void QtAcrylicEffectHelper::updateAcrylicBrush(const QColor &alternativeTintColor)
 {
-    const auto getAppropriateTintColor = [&alternativeTintColor, this]() -> QColor {
-        if (alternativeTintColor.isValid() && (alternativeTintColor != Qt::transparent)) {
-            return alternativeTintColor;
-        }
-        if (m_tintColor.isValid() && (m_tintColor != Qt::transparent)) {
-            return m_tintColor;
-        }
-        return Qt::white;
-    };
     if (acrylicData()->noiseTexture.isNull()) {
         Q_INIT_RESOURCE(qtacrylichelper);
         acrylicData()->noiseTexture = QImage{QStringLiteral(":/QtAcrylicHelper/Noise.png")};
@@ -171,14 +164,14 @@ void QtAcrylicEffectHelper::updateAcrylicBrush(const QColor &alternativeTintColo
 #ifdef Q_OS_WINDOWS
     if (!Utilities::isOfficialMSWin10AcrylicBlurAvailable()) {
         // Add a soft light layer for the background.
-        fillColor = Qt::white;
+        fillColor = defaultMaskColor();
         fillColor.setAlpha(150);
     }
 #endif
     acrylicTexture.fill(fillColor);
     QPainter painter(&acrylicTexture);
     painter.setOpacity(m_tintOpacity);
-    painter.fillRect(QRect{0, 0, acrylicTexture.width(), acrylicTexture.height()}, getAppropriateTintColor());
+    painter.fillRect(QRect{0, 0, acrylicTexture.width(), acrylicTexture.height()}, getAppropriateTintColor(alternativeTintColor));
     painter.setOpacity(m_noiseOpacity);
     painter.fillRect(QRect{0, 0, acrylicTexture.width(), acrylicTexture.height()}, acrylicData()->noiseTexture);
     m_acrylicBrush = acrylicTexture;
@@ -234,4 +227,21 @@ void QtAcrylicEffectHelper::generateBluredWallpaper()
 #else
     painter.drawImage(QPoint{0, 0}, buffer);
 #endif
+}
+
+const QColor &QtAcrylicEffectHelper::defaultMaskColor() const
+{
+    static const QColor color = Utilities::isDarkThemeEnabled() ? Qt::darkGray : Qt::white;
+    return color;
+}
+
+const QColor &QtAcrylicEffectHelper::getAppropriateTintColor(const QColor &alternativeTintColor) const
+{
+    if (alternativeTintColor.isValid() && (alternativeTintColor != Qt::transparent)) {
+        return alternativeTintColor;
+    }
+    if (m_tintColor.isValid() && (m_tintColor != Qt::transparent)) {
+        return m_tintColor;
+    }
+    return defaultMaskColor();
 }
