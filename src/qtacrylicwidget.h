@@ -57,6 +57,7 @@ Q_SIGNALS:
 protected:
     void paintEvent(QPaintEvent *event) override;
     void moveEvent(QMoveEvent *event) override;
+    void changeEvent(QEvent *event) override;
 
 private:
     QtAcrylicEffectHelper m_acrylicHelper;

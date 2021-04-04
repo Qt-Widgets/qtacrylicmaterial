@@ -31,6 +31,9 @@ using namespace _qam;
 
 QtAcrylicWidget::QtAcrylicWidget(QWidget *parent) : QWidget(parent)
 {
+    setAutoFillBackground(false);
+    setAttribute(Qt::WA_NoSystemBackground);
+    setBackgroundRole(QPalette::Base);
     m_acrylicHelper.showPerformanceWarning();
     m_acrylicHelper.updateAcrylicBrush();
 }
@@ -107,5 +110,13 @@ void QtAcrylicWidget::moveEvent(QMoveEvent *event)
     QWidget::moveEvent(event);
     if (Utilities::shouldUseWallpaperBlur()) {
         update();
+    }
+}
+
+void QtAcrylicWidget::changeEvent(QEvent *event)
+{
+    QWidget::changeEvent(event);
+    if (event->type() == QEvent::PaletteChange) {
+        m_acrylicHelper.updateAcrylicBrush();
     }
 }
