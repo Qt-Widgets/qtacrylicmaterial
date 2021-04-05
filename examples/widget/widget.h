@@ -35,7 +35,6 @@ class QtAcrylicWidget;
 class Widget : public QWidget
 {
     Q_OBJECT
-    Q_DISABLE_COPY_MOVE(Widget)
 
 public:
     explicit Widget(QWidget *parent = nullptr);
