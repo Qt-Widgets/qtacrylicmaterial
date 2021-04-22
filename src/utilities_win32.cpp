@@ -495,7 +495,7 @@ static inline bool shouldUseOfficialMSWin10AcrylicBlur()
         return true;
     }
     // For these versions, the undocumented API is known to be working well.
-    return (((currentVersion.microVersion() >= 16190) && (currentVersion.microVersion() < 18362)) || (currentVersion.microVersion() >= 21343));
+    return (((currentVersion.microVersion() >= 16190) && (currentVersion.microVersion() < 17134)) || (currentVersion.microVersion() >= 21343));
 #else
     // TODO
     return false;
