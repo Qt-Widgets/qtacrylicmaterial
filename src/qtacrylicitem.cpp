@@ -25,31 +25,40 @@
 #include "qtacrylicitem.h"
 #include <QtQuick/qquickwindow.h>
 #include <QtCore/qdebug.h>
+#include "utilities.h"
+
+using namespace _qam;
 
 QtAcrylicItem::QtAcrylicItem(QQuickItem *parent) : QQuickPaintedItem(parent)
 {
     m_acrylicHelper.showPerformanceWarning();
-    m_acrylicHelper.updateAcrylicBrush(tintColor());
+    m_acrylicHelper.updateAcrylicBrush();
     connect(this, &QtAcrylicItem::xChanged, this, [this](){
-        update();
+        if (Utilities::shouldUseWallpaperBlur()) {
+            update();
+        }
     });
     connect(this, &QtAcrylicItem::yChanged, this, [this](){
-        update();
+        if (Utilities::shouldUseWallpaperBlur()) {
+            update();
+        }
     });
     connect(this, &QtAcrylicItem::windowChanged, this, [this](QQuickWindow *w){
-        if (m_xConnection) {
-            disconnect(m_xConnection);
-        }
-        if (m_yConnection) {
-            disconnect(m_yConnection);
-        }
-        if (w) {
-            m_xConnection = connect(w, &QQuickWindow::xChanged, this, [this](){
-                update();
-            });
-            m_yConnection = connect(w, &QQuickWindow::yChanged, this, [this](){
-                update();
-            });
+        if (Utilities::shouldUseWallpaperBlur()) {
+            if (m_xConnection) {
+                disconnect(m_xConnection);
+            }
+            if (m_yConnection) {
+                disconnect(m_yConnection);
+            }
+            if (w) {
+                m_xConnection = connect(w, &QQuickWindow::xChanged, this, [this](){
+                    update();
+                });
+                m_yConnection = connect(w, &QQuickWindow::yChanged, this, [this](){
+                    update();
+                });
+            }
         }
     });
 }
@@ -85,7 +94,7 @@ void QtAcrylicItem::setTintColor(const QColor &value)
         pal.setColor(backgroundRole(), m_acrylicHelper.getTintColor());
         setPalette(pal);
 #endif
-        m_acrylicHelper.updateAcrylicBrush(tintColor());
+        m_acrylicHelper.updateAcrylicBrush();
         update();
         Q_EMIT tintColorChanged();
     }
@@ -100,7 +109,7 @@ void QtAcrylicItem::setTintOpacity(const qreal value)
 {
     if (m_acrylicHelper.getTintOpacity() != value) {
         m_acrylicHelper.setTintOpacity(value);
-        m_acrylicHelper.updateAcrylicBrush(tintColor());
+        m_acrylicHelper.updateAcrylicBrush();
         update();
         Q_EMIT tintOpacityChanged();
     }
@@ -115,7 +124,7 @@ void QtAcrylicItem::setNoiseOpacity(const qreal value)
 {
     if (m_acrylicHelper.getNoiseOpacity() != value) {
         m_acrylicHelper.setNoiseOpacity(value);
-        m_acrylicHelper.updateAcrylicBrush(tintColor());
+        m_acrylicHelper.updateAcrylicBrush();
         update();
         Q_EMIT noiseOpacityChanged();
     }

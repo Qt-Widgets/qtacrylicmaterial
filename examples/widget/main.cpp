@@ -26,6 +26,8 @@
 #include "widget.h"
 #include "utilities.h"
 
+using namespace _qam;
+
 int main(int argc, char *argv[])
 {
     // High DPI scaling is enabled by default from Qt 6

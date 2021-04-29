@@ -27,11 +27,15 @@
 #include <QtWidgets/qlabel.h>
 #include <QtCore/qdatetime.h>
 #include "qtacrylicwidget.h"
+#include "utilities.h"
+
+using namespace _qam;
 
 Widget::Widget(QWidget *parent) : QWidget(parent)
 {
     setAutoFillBackground(false);
     setAttribute(Qt::WA_NoSystemBackground);
+    setWindowTitle(tr("QtAcrylicMaterial - Widget"));
     setupUi();
     startTimer(500);
 }
@@ -49,8 +53,7 @@ void Widget::timerEvent(QTimerEvent *event)
 void Widget::moveEvent(QMoveEvent *event)
 {
     QWidget::moveEvent(event);
-    if (m_acrylicWidget) {
-        // This line is necessary!
+    if (m_acrylicWidget && Utilities::shouldUseWallpaperBlur()) {
         m_acrylicWidget->update();
     }
 }

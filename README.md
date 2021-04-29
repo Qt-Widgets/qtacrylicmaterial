@@ -10,6 +10,8 @@ Cross-platform blur effect inspired by [Microsoft's Acrylic blur](https://docs.m
 
 ## Screenshots
 
+![Win10](/screenshots/win10-msacrylic.png)
+
 ## Notice
 
 Rendering acrylic material surfaces is highly GPU-intensive, which can slow down the application, increase the power consumption on the devices on which the application is running.

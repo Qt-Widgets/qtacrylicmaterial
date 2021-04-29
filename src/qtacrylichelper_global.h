@@ -58,14 +58,17 @@
 #define qAsConst(i) std::as_const(i)
 #endif
 
-namespace _qah_global {
+namespace _qam::Global {
 
-[[maybe_unused]] const char _qah_blurEnabled_flag[] = "_QTACRYLICHELPER_BLUR_ENABLED";
-[[maybe_unused]] const char _qah_blurMode_flag[] = "_QTACRYLICHELPER_BLUR_MODE";
-[[maybe_unused]] const char _qah_gradientColor_flag[] = "_QTACRYLICHELPER_BLUR_GRADIENT_COLOR";
-[[maybe_unused]] const char _qah_disableExtraProcess[] = "_QTACRYLICHELPER_DISABLE_EXTRA_PROCESS_FOR_BLUR";
-[[maybe_unused]] const char _qah_forceEnableOfficialMSWin10AcrylicBlur_flag[] = "_QTACRYLICHELPER_FORCE_ENABLE_MSWIN10_OFFICIAL_ACRYLIC_BLUR";
-[[maybe_unused]] const char _qah_forceEnableTraditionalBlur_flag[] = "_QTACRYLICHELPER_FORCE_ENABLE_TRADITIONAL_BLUR";
-[[maybe_unused]] const char _qah_forceDisableWallpaperBlur_flag[] = "_QTACRYLICHELPER_FORCE_DISABLE_WALLPAPER_BLUR";
+[[maybe_unused]] const char _qam_blurEnabled_flag[] = "_QTACRYLICMATERIAL_BLUR_ENABLED";
+[[maybe_unused]] const char _qam_blurMode_flag[] = "_QTACRYLICMATERIAL_BLUR_MODE";
+[[maybe_unused]] const char _qam_gradientColor_flag[] = "_QTACRYLICMATERIAL_BLUR_GRADIENT_COLOR";
+[[maybe_unused]] const char _qam_disableExtraProcess[] = "_QTACRYLICMATERIAL_DISABLE_EXTRA_PROCESS_FOR_BLUR";
+[[maybe_unused]] const char _qam_forceEnableOfficialMSWin10AcrylicBlur_flag[] = "_QTACRYLICMATERIAL_FORCE_ENABLE_MSWIN10_OFFICIAL_ACRYLIC_BLUR";
+[[maybe_unused]] const char _qam_forceDisableOfficialMSWin10AcrylicBlur_flag[] = "_QTACRYLICMATERIAL_FORCE_DISABLE_MSWIN10_OFFICIAL_ACRYLIC_BLUR";
+[[maybe_unused]] const char _qam_forceEnableTraditionalBlur_flag[] = "_QTACRYLICMATERIAL_FORCE_ENABLE_TRADITIONAL_BLUR";
+[[maybe_unused]] const char _qam_forceDisableTraditionalBlur_flag[] = "_QTACRYLICMATERIAL_FORCE_DISABLE_TRADITIONAL_BLUR";
+[[maybe_unused]] const char _qam_forceEnableWallpaperBlur_flag[] = "_QTACRYLICMATERIAL_FORCE_ENABLE_WALLPAPER_BLUR";
+[[maybe_unused]] const char _qam_forceDisableWallpaperBlur_flag[] = "_QTACRYLICMATERIAL_FORCE_DISABLE_WALLPAPER_BLUR";
 
 }

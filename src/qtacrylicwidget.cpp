@@ -25,11 +25,17 @@
 #include "qtacrylicwidget.h"
 #include <QtCore/qdebug.h>
 #include <QtGui/qpainter.h>
+#include "utilities.h"
+
+using namespace _qam;
 
 QtAcrylicWidget::QtAcrylicWidget(QWidget *parent) : QWidget(parent)
 {
+    setAutoFillBackground(false);
+    setAttribute(Qt::WA_NoSystemBackground);
+    setBackgroundRole(QPalette::Base);
     m_acrylicHelper.showPerformanceWarning();
-    m_acrylicHelper.updateAcrylicBrush(tintColor());
+    m_acrylicHelper.updateAcrylicBrush();
 }
 
 QtAcrylicWidget::~QtAcrylicWidget() = default;
@@ -55,7 +61,7 @@ void QtAcrylicWidget::setTintColor(const QColor &value)
         QPalette pal = palette();
         pal.setColor(backgroundRole(), m_acrylicHelper.getTintColor());
         setPalette(pal);
-        //m_acrylicHelper.updateAcrylicBrush(tintColor());
+        //m_acrylicHelper.updateAcrylicBrush();
         update();
         Q_EMIT tintColorChanged();
     }
@@ -70,7 +76,7 @@ void QtAcrylicWidget::setTintOpacity(const qreal value)
 {
     if (m_acrylicHelper.getTintOpacity() != value) {
         m_acrylicHelper.setTintOpacity(value);
-        m_acrylicHelper.updateAcrylicBrush(tintColor());
+        m_acrylicHelper.updateAcrylicBrush();
         update();
         Q_EMIT tintOpacityChanged();
     }
@@ -85,7 +91,7 @@ void QtAcrylicWidget::setNoiseOpacity(const qreal value)
 {
     if (m_acrylicHelper.getNoiseOpacity() != value) {
         m_acrylicHelper.setNoiseOpacity(value);
-        m_acrylicHelper.updateAcrylicBrush(tintColor());
+        m_acrylicHelper.updateAcrylicBrush();
         update();
         Q_EMIT noiseOpacityChanged();
     }
@@ -102,5 +108,15 @@ void QtAcrylicWidget::paintEvent(QPaintEvent *event)
 void QtAcrylicWidget::moveEvent(QMoveEvent *event)
 {
     QWidget::moveEvent(event);
-    update();
+    if (Utilities::shouldUseWallpaperBlur()) {
+        update();
+    }
+}
+
+void QtAcrylicWidget::changeEvent(QEvent *event)
+{
+    QWidget::changeEvent(event);
+    if (event->type() == QEvent::PaletteChange) {
+        m_acrylicHelper.updateAcrylicBrush();
+    }
 }

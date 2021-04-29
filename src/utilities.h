@@ -28,7 +28,7 @@
 #include <QtGui/qcolor.h>
 #include <QtGui/qwindow.h>
 
-namespace Utilities {
+namespace _qam::Utilities {
 
 enum class DesktopWallpaperAspectStyle
 {
@@ -45,6 +45,8 @@ QTACRYLICHELPER_API bool shouldUseWallpaperBlur();
 QTACRYLICHELPER_API bool shouldUseTraditionalBlur();
 QTACRYLICHELPER_API bool setBlurEffectEnabled(const QWindow *window, const bool enabled, const QColor &gradientColor = {});
 
+QTACRYLICHELPER_API bool isDarkThemeEnabled();
+
 QTACRYLICHELPER_API QWindow *findWindow(const WId winId);
 
 QTACRYLICHELPER_API QImage getDesktopWallpaperImage(const int screen = -1);
@@ -58,17 +60,16 @@ QTACRYLICHELPER_API void blurImage(QPainter *painter, QImage &blurImage, const q
 
 QTACRYLICHELPER_API bool disableExtraProcessingForBlur();
 QTACRYLICHELPER_API bool forceEnableTraditionalBlur();
+QTACRYLICHELPER_API bool forceDisableTraditionalBlur();
+QTACRYLICHELPER_API bool forceEnableWallpaperBlur();
 QTACRYLICHELPER_API bool forceDisableWallpaperBlur();
 
 #ifdef Q_OS_WINDOWS
 // Windows specific
-QTACRYLICHELPER_API bool isWin7OrGreater();
 QTACRYLICHELPER_API bool isWin8OrGreater();
-QTACRYLICHELPER_API bool isWin8Point1OrGreater();
 QTACRYLICHELPER_API bool isWin10OrGreater();
 QTACRYLICHELPER_API bool isWin10OrGreater(const int subVer);
 
-QTACRYLICHELPER_API bool isDwmBlurAvailable();
 QTACRYLICHELPER_API bool isOfficialMSWin10AcrylicBlurAvailable();
 
 QTACRYLICHELPER_API QColor getColorizationColor();

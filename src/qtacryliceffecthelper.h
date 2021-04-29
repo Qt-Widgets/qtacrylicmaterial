@@ -54,6 +54,8 @@ public:
 
 private:
     void generateBluredWallpaper();
+    const QColor &defaultMaskColor() const;
+    const QColor &getAppropriateTintColor(const QColor &alternativeTintColor = {}) const;
 
 private:
     QBrush m_acrylicBrush = {};

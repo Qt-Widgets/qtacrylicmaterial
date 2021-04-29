@@ -32,7 +32,7 @@ Window {
     visible: true
     width: 800
     height: 600
-    title: qsTr("Hello, World!")
+    title: qsTr("QtAcrylicMaterial - Quick")
     color: "transparent"
 
     Timer {
