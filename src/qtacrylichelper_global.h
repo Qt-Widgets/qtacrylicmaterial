@@ -27,19 +27,19 @@
 #include <QtCore/qglobal.h>
 
 #ifndef QTACRYLICHELPER_API
-#ifdef QTACRYLICHELPER_STATIC
-#define QTACRYLICHELPER_API
-#else
-#ifdef QTACRYLICHELPER_BUILD_LIBRARY
-#define QTACRYLICHELPER_API Q_DECL_EXPORT
-#else
-#define QTACRYLICHELPER_API Q_DECL_IMPORT
-#endif
-#endif
+    #ifdef QTACRYLICHELPER_STATIC
+        #define QTACRYLICHELPER_API
+    #else
+        #ifdef QTACRYLICHELPER_BUILD_LIBRARY
+            #define QTACRYLICHELPER_API Q_DECL_EXPORT
+        #else
+            #define QTACRYLICHELPER_API Q_DECL_EXPORT // Q_DECL_IMPORT
+        #endif
+    #endif
 #endif
 
 #if defined(Q_OS_WIN) && !defined(Q_OS_WINDOWS)
-#define Q_OS_WINDOWS
+    #define Q_OS_WINDOWS
 #endif
 
 #ifndef Q_DISABLE_MOVE
@@ -55,7 +55,7 @@
 #endif
 
 #if (QT_VERSION < QT_VERSION_CHECK(5, 7, 0))
-#define qAsConst(i) std::as_const(i)
+    #define qAsConst(i) std::as_const(i)
 #endif
 
 namespace _qam::Global {
