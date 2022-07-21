@@ -33,7 +33,7 @@
         #ifdef QTACRYLICHELPER_BUILD_LIBRARY
             #define QTACRYLICHELPER_API Q_DECL_EXPORT
         #else
-            #define QTACRYLICHELPER_API Q_DECL_EXPORT // Q_DECL_IMPORT
+            #define QTACRYLICHELPER_API Q_DECL_IMPORT
         #endif
     #endif
 #endif
